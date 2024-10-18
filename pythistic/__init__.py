@@ -1,3 +1,4 @@
 from .FrequencyTable import *
 from .Transform import *
-from .Chart import *
+from .Calculations import *
+from .Summary import *

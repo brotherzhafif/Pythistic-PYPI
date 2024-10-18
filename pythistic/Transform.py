@@ -1,75 +1,46 @@
-# Transform.py
 import numpy as np
-from scipy.stats import boxcox, yeojohnson
+from scipy import stats
 
 class Transform:
-    def __init__(self, data):
+    def __init__(self, dataset):
         # Initialize the Transform class with the raw data.
-        self.data = np.array(data)
+        self.dataset = sorted(dataset)
 
-    def log_transform(self):
-        # Apply logarithmic transformation to the data.
-        if np.any(self.data <= 0):
-            raise ValueError("Log transformation requires positive data values.")
-        return np.log(self.data)
+        # Basic Statistic Variable 
+        self.mean = np.mean(dataset)
+        self.std = np.std(dataset)
+        self.min_value = np.min(dataset)
+        self.max_value = np.max(dataset)
+        self.length = len(dataset)
+        self.lambda_value = None
 
-    def square_root_transform(self):
-        # Apply square root transformation to the data.
-        if np.any(self.data < 0):
-            raise ValueError("Square root transformation requires non-negative data values.")
-        return np.sqrt(self.data)
+        self.transformed_data = []  # Store transformed data here
+    
+    def logaritmic(self):
+        self.transformed_data = [np.log10(x) for x in self.data]
 
-    def cube_root_transform(self):
-        # Apply cube root transformation to the data.
-        return np.cbrt(self.data)
+    def sqrt_root(self):
+        self.transformed_data = [np.sqrt(x) for x in self.data]
 
-    def reciprocal_transform(self):
-        # Apply reciprocal transformation to the data.
-        if np.any(self.data == 0):
-            raise ValueError("Reciprocal transformation cannot be applied to data containing zero.")
-        return 1 / self.data
+    def power_two(self):
+        self.transformed_data = [x**2 for x in self.dataset]
+    
+    def reciprocal(self):
+        self.transformed_data = [1 / (x + 1e-9) for x in self.dataset]
 
-    def box_cox_transform(self, lmbda=None):
-        # Apply Box-Cox transformation to the data.
-        if np.any(self.data <= 0):
-            raise ValueError("Box-Cox transformation requires positive data values.")
-        transformed_data, best_lambda = boxcox(self.data, lmbda)
-        return transformed_data, best_lambda
+    def z_score(self):
+        self.transformed_data = [(x - self.mean) / self.std for x in self.dataset]
+    
+    def min_max(self):
+        self.transformed_data = [(x - self.min_value) / (self.max_value - self.min_value) for x in self.dataset]
+    
+    def boxcox(self):
+        self.transformed_data, self.lambda_value = stats.boxcox([x for x in self.data if x > 0])  # Box-Cox hanya untuk data positif
+        self.transformed_data = self.transformed_data.tolist()  # Mengonversi hasil ke list
 
-    def yeo_johnson_transform(self, lmbda=None):
-        # Apply Yeo-Johnson transformation to the data.
-        transformed_data, best_lambda = yeojohnson(self.data, lmbda)
-        return transformed_data, best_lambda
+    def logit(self):
+        self.transformed_data = [np.log(x / (1 - x + 1e-9)) for x in self.dataset]  # Menambahkan epsilon untuk menghindari log(0)
 
-    def z_score_standardization(self):
-        # Apply Z-score standardization to the data.
-        mean = np.mean(self.data)
-        std_dev = np.std(self.data)
-        return (self.data - mean) / std_dev
-
-    def min_max_scaling(self, feature_range=(0, 1)):
-        # Apply Min-Max scaling to the data.
-        min_val = np.min(self.data)
-        max_val = np.max(self.data)
-        scale = feature_range[1] - feature_range[0]
-        return feature_range[0] + ((self.data - min_val) / (max_val - min_val)) * scale
-
-    def rank_transform(self):
-        # Apply rank transformation to the data.
-        return np.argsort(np.argsort(self.data))
-
-    def arcsine_transform(self):
-        # Apply arcsine transformation to the data.
-        if np.any((self.data < 0) | (self.data > 1)):
-            raise ValueError("Arcsine transformation requires data in the range [0, 1].")
-        return np.arcsin(np.sqrt(self.data))
-
-    def exponential_transform(self, base=np.e):
-        # Apply exponential transformation to the data.
-        return np.power(base, self.data)
-
-    def logit_transform(self):
-        # Apply logit transformation to the data.
-        if np.any((self.data <= 0) | (self.data >= 1)):
-            raise ValueError("Logit transformation requires data between 0 and 1 (exclusive).")
-        return np.log(self.data / (1 - self.data))
+    def yeo_johnshon(self):
+        self.transformed_data = stats.yeojohnson(self.dataset)
+        self.transformed_data = self.transformed_data.tolist()
