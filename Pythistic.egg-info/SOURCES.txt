@@ -6,7 +6,7 @@ Pythistic.egg-info/dependency_links.txt
 Pythistic.egg-info/requires.txt
 Pythistic.egg-info/top_level.txt
 pythistic/Calculations.py
+pythistic/Data.py
 pythistic/FrequencyTable.py
-pythistic/Summary.py
 pythistic/Transform.py
 pythistic/__init__.py
